@@ -100,10 +100,12 @@ export default {
     handleScroll(event) {
       event.preventDefault()
       const delta = event.deltaY
-      const maxScroll = 700
-      const minScroll = -700
+      const maxScroll = 200
+      const minScroll = -1900
       
-      this.scrollOffset -= delta * 0.5
+      // 限制滚动速度，让球按路径平滑移动
+      const scrollSpeed = Math.min(Math.abs(delta), 50) * Math.sign(delta)
+      this.scrollOffset -= scrollSpeed * 0.3
       this.scrollOffset = Math.max(minScroll, Math.min(maxScroll, this.scrollOffset))
     },
     
@@ -112,8 +114,10 @@ export default {
       this.svgWidth = window.innerWidth
       
       this.planets.forEach((planet, index) => {
-        const progress = index / (this.planets.length - 1)
-        const position = this.getPointOnCurve(progress)
+        // 调整进度计算，让球分布更分散，增加纵向间距
+        const progress = (index * 2.5) / (this.planets.length - 1)
+        const clampedProgress = Math.min(progress, 1)
+        const position = this.getPointOnCurve(clampedProgress)
         
         planet.position = {
           x: centerX + position.x,
@@ -146,7 +150,8 @@ export default {
     },
 
     getScrollAdjustedPosition(originalPosition, index) {
-      const progress = (index / (this.planets.length - 1)) + (this.scrollOffset / 1000)
+      const baseProgress = (index * 2.5) / (this.planets.length - 1)
+      const progress = baseProgress + (this.scrollOffset / 1000)
       const clampedProgress = Math.max(0, Math.min(1, progress))
       const curvePosition = this.getPointOnCurve(clampedProgress)
       const centerX = window.innerWidth / 2

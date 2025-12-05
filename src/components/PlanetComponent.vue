@@ -65,8 +65,8 @@ export default {
 }
 
 .planet {
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
