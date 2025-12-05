@@ -5,7 +5,7 @@
       <path
         :d="curvePath"
         stroke="url(#curveGradient)"
-        stroke-width="4"
+        stroke-width="10"
         fill="none"
         class="main-curve"
       />
@@ -54,8 +54,8 @@ export default {
   data() {
     return {
       scrollOffset: 0,
-      svgWidth: 400,
-      svgHeight: 1200,
+      svgWidth: 375,
+      svgHeight: 900,
       planets: [
         { id: 1, type: 'locked', title: '未解锁课程', position: { x: 200, y: 100 } },
         { id: 2, type: 'locked', title: '未解锁课程', position: { x: 150, y: 200 } },
@@ -63,7 +63,9 @@ export default {
         { id: 4, type: 'available', title: '待学习', position: { x: 180, y: 450 } },
         { id: 5, type: 'completed', title: '已完成', position: { x: 220, y: 600 } },
         { id: 6, type: 'completed', title: '已完成', position: { x: 160, y: 750 } },
-        { id: 7, type: 'completed', title: '已完成', position: { x: 240, y: 900 } }
+        { id: 7, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
+        { id: 8, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
+        { id: 9, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
       ]
     }
   },
@@ -72,12 +74,19 @@ export default {
       const width = this.svgWidth
       const height = this.svgHeight
       const centerX = width / 2
-      
-      return `M ${centerX} 50
-              Q ${centerX - 80} 200, ${centerX} 300
-              T ${centerX} 500
-              Q ${centerX + 80} 700, ${centerX} 800
-              T ${centerX} ${height - 50}`
+
+      // 标准S形曲线：一段对称的贝塞尔曲线
+      // 起点在顶部中间，终点在底部中间
+      // 控制点分别在左下和右上，形成标准S形
+      const startY = 60
+      const endY = height - 100
+      const controlOffsetX = 280
+      const controlOffsetY = (endY - startY) / 2
+
+      return `M ${centerX} ${startY}
+              C ${centerX + controlOffsetX} ${startY + controlOffsetY},
+                ${centerX - controlOffsetX} ${startY + controlOffsetY},
+                ${centerX} ${endY}`
     }
   },
   mounted() {
@@ -91,8 +100,8 @@ export default {
     handleScroll(event) {
       event.preventDefault()
       const delta = event.deltaY
-      const maxScroll = 600
-      const minScroll = -300
+      const maxScroll = 700
+      const minScroll = -700
       
       this.scrollOffset -= delta * 0.5
       this.scrollOffset = Math.max(minScroll, Math.min(maxScroll, this.scrollOffset))
@@ -114,34 +123,26 @@ export default {
     },
 
     getPointOnCurve(t) {
-      const width = this.svgWidth
-      const height = this.svgHeight
-      const centerX = width / 2
+      // 创建临时SVG元素来计算路径上的点
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      path.setAttribute('d', this.curvePath)
+      svg.appendChild(path)
+      document.body.appendChild(svg)
       
-      // S曲线参数化路径计算
-      const y = 50 + t * (height - 100)
-      let x = 0
+      // 获取路径总长度并计算指定比例处的点
+      const totalLength = path.getTotalLength()
+      const point = path.getPointAtLength(t * totalLength)
       
-      // 分段计算S曲线的x偏移
-      if (t < 0.25) {
-        // 第一段曲线
-        const segmentT = t / 0.25
-        x = -80 * Math.sin(segmentT * Math.PI * 0.5)
-      } else if (t < 0.5) {
-        // 第二段曲线  
-        const segmentT = (t - 0.25) / 0.25
-        x = -80 * Math.cos(segmentT * Math.PI * 0.5)
-      } else if (t < 0.75) {
-        // 第三段曲线
-        const segmentT = (t - 0.5) / 0.25
-        x = 80 * Math.sin(segmentT * Math.PI * 0.5)
-      } else {
-        // 第四段曲线
-        const segmentT = (t - 0.75) / 0.25
-        x = 80 * Math.cos(segmentT * Math.PI * 0.5)
+      // 清理临时元素
+      document.body.removeChild(svg)
+      
+      // 返回相对于中心的坐标
+      const centerX = this.svgWidth / 2
+      return {
+        x: point.x - centerX,
+        y: point.y
       }
-      
-      return { x, y }
     },
 
     getScrollAdjustedPosition(originalPosition, index) {
@@ -178,8 +179,8 @@ export default {
 .curve-path {
   position: fixed;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  /* left: 50%;
+  transform: translateX(-50%); */
   z-index: 5;
   filter: url(#glow);
 }

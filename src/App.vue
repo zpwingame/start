@@ -2,11 +2,11 @@
   <div class="galaxy-container">
     <StarryBackground />
     <KnowledgeGalaxy />
-    <PlanetModal 
+    <!-- <PlanetModal 
       v-if="showModal"
       :message="modalMessage"
       @close="closeModal"
-    />
+    /> -->
   </div>
 </template>
 
