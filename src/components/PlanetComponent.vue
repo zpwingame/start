@@ -10,13 +10,13 @@
       @animationend="isShaking = false"
     >
       <div class="planet-surface">
-        <div class="planet-glow" v-if="planet.type === 'completed'"></div>
+        <!-- <div class="planet-glow" v-if="planet.type === 'completed'"></div>
         <div class="planet-rings" v-if="planet.type === 'learning'"></div>
-        <div class="lock-icon" v-if="planet.type === 'locked'">🔒</div>
+        <div class="lock-icon" v-if="planet.type === 'locked'">🔒</div> -->
       </div>
-      <div class="planet-label" v-if="planet.type === 'learning'">
+      <!-- <div class="planet-label" v-if="planet.type === 'learning'">
         {{ planet.title }}
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -37,20 +37,13 @@ export default {
   data() {
     return {
       isShaking: false,
-      isHighlighted: false
     }
   },
   methods: {
     handleClick() {
       if (this.planet.type === 'locked') {
         this.isShaking = true
-      } else if (this.planet.type === 'learning' || this.planet.type === 'available') {
-        this.isHighlighted = true
-        setTimeout(() => {
-          this.isHighlighted = false
-        }, 600)
-      }
-      
+      } 
       this.$emit('planet-click', this.planet)
     }
   }
@@ -65,8 +58,8 @@ export default {
 }
 
 .planet {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   position: relative;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -82,51 +75,43 @@ export default {
 
 /* 已完成星球 - 淡蓝色发光 */
 .planet-completed .planet-surface {
-  background: radial-gradient(circle at 30% 30%, #87ceeb, #4682b4);
-  box-shadow: 
-    0 0 20px rgba(135, 206, 235, 0.8),
-    inset -10px -10px 20px rgba(0, 0, 0, 0.3);
-  animation: completedGlow 3s ease-in-out infinite;
+  background-image: url(../assets/completed.png);
+  background-size: cover;
 }
 
 .planet-completed:hover {
   transform: scale(1.1);
 }
 
+.planet-learning {
+  width: 140px;
+  height: 140px;
+}
+
 /* 学习中星球 - 蓝绿色 + 上下摆动 */
 .planet-learning .planet-surface {
-  background: radial-gradient(circle at 30% 30%, #20b2aa, #008b8b);
-  box-shadow: 
-    0 0 25px rgba(32, 178, 170, 0.9),
-    inset -8px -8px 16px rgba(0, 0, 0, 0.3);
-  animation: learningFloat 2s ease-in-out infinite;
+  background-image: url(../assets/learning.png);
+  background-size: cover;
 }
 
 .planet-learning:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 30px rgba(32, 178, 170, 1);
 }
 
 /* 待学习星球 - 蓝绿色 */
 .planet-available .planet-surface {
-  background: radial-gradient(circle at 30% 30%, #20b2aa, #008b8b);
-  box-shadow: 
-    0 0 15px rgba(32, 178, 170, 0.6),
-    inset -8px -8px 16px rgba(0, 0, 0, 0.3);
+  background-image: url(../assets/available.png);
+  background-size: cover;
 }
 
 .planet-available:hover {
   transform: scale(1.2);
-  box-shadow: 0 0 25px rgba(32, 178, 170, 0.8);
 }
 
 /* 未解锁星球 - 浅蓝色 */
 .planet-locked .planet-surface {
-  background: radial-gradient(circle at 30% 30%, #add8e6, #87ceeb);
-  box-shadow: 
-    0 0 10px rgba(173, 216, 230, 0.4),
-    inset -8px -8px 16px rgba(0, 0, 0, 0.2);
-  opacity: 0.7;
+  background-image: url(../assets/locked.png);
+  background-size: cover;
 }
 
 /* 锁定图标 */

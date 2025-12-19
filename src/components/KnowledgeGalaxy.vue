@@ -5,7 +5,7 @@
       <path
         :d="curvePath"
         stroke="url(#curveGradient)"
-        stroke-width="10"
+        stroke-width="12"
         fill="none"
         class="main-curve"
       />
@@ -13,12 +13,8 @@
       <!-- 渐变定义 -->
       <defs>
         <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-          <!-- 已完成部分 - 淡蓝色发光 -->
-          <stop offset="0%" style="stop-color:#87ceeb;stop-opacity:1" />
-          <!-- 学习中/待学习部分 - 蓝绿色 -->
-          <stop offset="60%" style="stop-color:#20b2aa;stop-opacity:1" />
-          <!-- 待解锁部分 - 浅蓝色 -->
-          <stop offset="100%" style="stop-color:#add8e6;stop-opacity:0.6" />
+          <stop offset="0%" style="stop-color:rgba(83, 152, 255, 0.2);stop-opacity:1" />
+          <stop offset="100%" style="stop-color:rgba(83, 152, 255, 0.2);stop-opacity:0.6" />
         </linearGradient>
         
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
@@ -53,9 +49,9 @@ export default {
   },
   data() {
     return {
-      scrollOffset: 0,
-      svgWidth: 375,
-      svgHeight: 900,
+      scrollOffset: 300,
+      svgWidth: window.innerWidth,
+      svgHeight: window.innerHeight,
       planets: [
         { id: 1, type: 'locked', title: '未解锁课程', position: { x: 200, y: 100 } },
         { id: 2, type: 'locked', title: '未解锁课程', position: { x: 150, y: 200 } },
@@ -66,6 +62,15 @@ export default {
         { id: 7, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
         { id: 8, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
         { id: 9, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
+        { id: 11, type: 'locked', title: '未解锁课程', position: { x: 200, y: 100 } },
+        { id: 22, type: 'locked', title: '未解锁课程', position: { x: 150, y: 200 } },
+        { id: 33, type: 'learning', title: '学习中', position: { x: 250, y: 350 } },
+        { id: 44, type: 'available', title: '待学习', position: { x: 180, y: 450 } },
+        { id: 55, type: 'completed', title: '已完成', position: { x: 220, y: 600 } },
+        { id: 66, type: 'completed', title: '已完成', position: { x: 160, y: 750 } },
+        { id: 77, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
+        { id: 88, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
+        { id: 99, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },     
       ]
     }
   },
@@ -75,18 +80,27 @@ export default {
       const height = this.svgHeight
       const centerX = width / 2
 
-      // 标准S形曲线：一段对称的贝塞尔曲线
-      // 起点在顶部中间，终点在底部中间
-      // 控制点分别在左下和右上，形成标准S形
-      const startY = 60
-      const endY = height - 100
-      const controlOffsetX = 280
-      const controlOffsetY = (endY - startY) / 2
+      // 双S形参数
+      const startY = -100
+      const endY = height + 60
+      const sectionHeight = (endY - startY) / 2
+      const controlOffsetX = 330
 
-      return `M ${centerX} ${startY}
-              C ${centerX + controlOffsetX} ${startY + controlOffsetY},
-                ${centerX - controlOffsetX} ${startY + controlOffsetY},
-                ${centerX} ${endY}`
+      // 第一段S形
+      const p0 = { x: centerX, y: startY }
+      const p1 = { x: centerX + controlOffsetX, y: startY + sectionHeight / 2 }
+      const p2 = { x: centerX - controlOffsetX, y: startY + sectionHeight / 2 }
+      const p3 = { x: centerX, y: startY + sectionHeight }
+
+      // 第二段S形
+      const p4 = { x: centerX + controlOffsetX, y: startY + sectionHeight + sectionHeight / 2 }
+      const p5 = { x: centerX - controlOffsetX, y: startY + sectionHeight + sectionHeight / 2 }
+      const p6 = { x: centerX, y: endY }
+
+      // 拼接两段贝塞尔曲线
+      return `M ${p0.x} ${p0.y}
+              C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}
+              C ${p4.x} ${p4.y}, ${p5.x} ${p5.y}, ${p6.x} ${p6.y}`
     }
   },
   mounted() {
@@ -101,7 +115,7 @@ export default {
       event.preventDefault()
       const delta = event.deltaY
       const maxScroll = 200
-      const minScroll = -1900
+      const minScroll = -1000
       
       // 限制滚动速度，让球按路径平滑移动
       const scrollSpeed = Math.min(Math.abs(delta), 50) * Math.sign(delta)
@@ -115,7 +129,7 @@ export default {
       
       this.planets.forEach((planet, index) => {
         // 调整进度计算，让球分布更分散，增加纵向间距
-        const progress = (index * 2.5) / (this.planets.length - 1)
+        const progress = (index * 1.5) / (this.planets.length - 1)
         const clampedProgress = Math.min(progress, 1)
         const position = this.getPointOnCurve(clampedProgress)
         
@@ -150,7 +164,7 @@ export default {
     },
 
     getScrollAdjustedPosition(originalPosition, index) {
-      const baseProgress = (index * 2.5) / (this.planets.length - 1)
+      const baseProgress = (index * 1.5) / (this.planets.length - 1)
       const progress = baseProgress + (this.scrollOffset / 1000)
       const clampedProgress = Math.max(0, Math.min(1, progress))
       const curvePosition = this.getPointOnCurve(clampedProgress)

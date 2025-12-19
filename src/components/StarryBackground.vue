@@ -11,10 +11,6 @@
         animationDuration: star.duration + 's'
       }"
     ></div>
-    <div class="floating-planets">
-      <div class="background-planet planet-1"></div>
-      <div class="background-planet planet-2"></div>
-    </div>
   </div>
 </template>
 
@@ -31,7 +27,7 @@ export default {
   },
   methods: {
     generateStars() {
-      const numStars = 150
+      const numStars = 50
       for (let i = 0; i < numStars; i++) {
         this.stars.push({
           id: i,
@@ -60,7 +56,7 @@ export default {
   position: absolute;
   width: 2px;
   height: 2px;
-  background: white;
+  background: rgb(159, 157, 157);
   border-radius: 50%;
   animation: twinkle infinite ease-in-out;
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
@@ -87,39 +83,6 @@ export default {
     opacity: 0;
     transform: scale(0.8);
   }
-}
-
-.floating-planets {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-}
-
-.background-planet {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(100, 200, 255, 0.3), rgba(50, 100, 200, 0.1));
-  animation: float infinite ease-in-out;
-}
-
-.planet-1 {
-  width: 120px;
-  height: 120px;
-  top: 10%;
-  right: 15%;
-  animation-duration: 8s;
-}
-
-.planet-2 {
-  width: 80px;
-  height: 80px;
-  top: 70%;
-  left: 10%;
-  animation-duration: 6s;
-  animation-delay: -2s;
 }
 
 @keyframes float {
