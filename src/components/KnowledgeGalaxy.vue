@@ -108,13 +108,9 @@ export default {
 
           path = `M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`
         } else {
-          // 后续段，用 C 连接（方向交替）
-          const isEven = i % 2 === 0
-          const offset1 = isEven ? controlOffsetX : -controlOffsetX
-          const offset2 = isEven ? -controlOffsetX : controlOffsetX
-
-          const p1 = { x: centerX + offset1, y: startY + sectionHeight / 2 }
-          const p2 = { x: centerX + offset2, y: startY + sectionHeight / 2 }
+          // 后续段，用 C 连接（保持相同方向）
+          const p1 = { x: centerX + controlOffsetX, y: startY + sectionHeight / 2 }
+          const p2 = { x: centerX - controlOffsetX, y: startY + sectionHeight / 2 }
           const p3 = { x: centerX, y: endY }
 
           path += ` C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`
