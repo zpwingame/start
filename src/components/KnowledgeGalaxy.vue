@@ -1,5 +1,5 @@
 <template>
-  <div class="knowledge-galaxy" @wheel="handleScroll">
+  <div class="knowledge-galaxy">
     <svg class="curve-path" :viewBox="`0 0 ${svgWidth} ${svgHeight}`">
       <!-- S曲线路径 -->
       <path
@@ -9,17 +9,17 @@
         fill="none"
         class="main-curve"
       />
-      
+
       <!-- 渐变定义 -->
       <defs>
         <linearGradient id="curveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
           <stop offset="0%" style="stop-color:rgba(83, 152, 255, 0.2);stop-opacity:1" />
           <stop offset="100%" style="stop-color:rgba(83, 152, 255, 0.2);stop-opacity:0.6" />
         </linearGradient>
-        
+
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge> 
+          <feMerge>
             <feMergeNode in="coloredBlur"/>
             <feMergeNode in="SourceGraphic"/>
           </feMerge>
@@ -27,12 +27,12 @@
       </defs>
     </svg>
 
-    <div class="planets-container" :style="{ transform: `translateY(${scrollOffset}px)` }">
+    <div class="planets-container" :style="{ height: svgHeight + 'px' }">
       <PlanetComponent
         v-for="(planet, index) in planets"
         :key="planet.id"
         :planet="planet"
-        :position="getScrollAdjustedPosition(planet.position, index)"
+        :position="planet.position"
         @planet-click="handlePlanetClick"
       />
     </div>
@@ -49,58 +49,79 @@ export default {
   },
   data() {
     return {
-      scrollOffset: 300,
       svgWidth: window.innerWidth,
-      svgHeight: window.innerHeight,
       planets: [
-        { id: 1, type: 'locked', title: '未解锁课程', position: { x: 200, y: 100 } },
-        { id: 2, type: 'locked', title: '未解锁课程', position: { x: 150, y: 200 } },
-        { id: 3, type: 'learning', title: '学习中', position: { x: 250, y: 350 } },
-        { id: 4, type: 'available', title: '待学习', position: { x: 180, y: 450 } },
-        { id: 5, type: 'completed', title: '已完成', position: { x: 220, y: 600 } },
-        { id: 6, type: 'completed', title: '已完成', position: { x: 160, y: 750 } },
-        { id: 7, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
-        { id: 8, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
-        { id: 9, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
-        { id: 11, type: 'locked', title: '未解锁课程', position: { x: 200, y: 100 } },
-        { id: 22, type: 'locked', title: '未解锁课程', position: { x: 150, y: 200 } },
-        { id: 33, type: 'learning', title: '学习中', position: { x: 250, y: 350 } },
-        { id: 44, type: 'available', title: '待学习', position: { x: 180, y: 450 } },
-        { id: 55, type: 'completed', title: '已完成', position: { x: 220, y: 600 } },
-        { id: 66, type: 'completed', title: '已完成', position: { x: 160, y: 750 } },
-        { id: 77, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
-        { id: 88, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },
-        { id: 99, type: 'completed', title: '已完成', position: { x: 240, y: 900 } },     
+        { id: 1, type: 'locked', title: '未解锁课程', position: { x: 0, y: 0 } },
+        { id: 2, type: 'locked', title: '未解锁课程', position: { x: 0, y: 0 } },
+        { id: 3, type: 'learning', title: '学习中', position: { x: 0, y: 0 } },
+        { id: 4, type: 'available', title: '待学习', position: { x: 0, y: 0 } },
+        { id: 5, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 6, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 7, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 8, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 9, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 11, type: 'locked', title: '未解锁课程', position: { x: 0, y: 0 } },
+        { id: 22, type: 'locked', title: '未解锁课程', position: { x: 0, y: 0 } },
+        { id: 33, type: 'learning', title: '学习中', position: { x: 0, y: 0 } },
+        { id: 44, type: 'available', title: '待学习', position: { x: 0, y: 0 } },
+        { id: 55, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 66, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 77, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 88, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
+        { id: 99, type: 'completed', title: '已完成', position: { x: 0, y: 0 } },
       ]
     }
   },
   computed: {
+    svgHeight() {
+      // 根据球的数量计算SVG高度：球数量 / 5 * 100vh
+      const ballsPerViewport = 5
+      const viewportHeight = window.innerHeight
+      return Math.ceil(this.planets.length / ballsPerViewport) * viewportHeight
+    },
     curvePath() {
       const width = this.svgWidth
       const height = this.svgHeight
       const centerX = width / 2
 
-      // 双S形参数
-      const startY = -100
-      const endY = height + 60
-      const sectionHeight = (endY - startY) / 2
+      // 根据高度计算需要多少段S曲线
+      const viewportHeight = window.innerHeight
+      const numSegments = Math.ceil(height / viewportHeight)
+
+      // S曲线参数
+      const segmentHeight = height / numSegments
       const controlOffsetX = 330
 
-      // 第一段S形
-      const p0 = { x: centerX, y: startY }
-      const p1 = { x: centerX + controlOffsetX, y: startY + sectionHeight / 2 }
-      const p2 = { x: centerX - controlOffsetX, y: startY + sectionHeight / 2 }
-      const p3 = { x: centerX, y: startY + sectionHeight }
+      let path = ''
 
-      // 第二段S形
-      const p4 = { x: centerX + controlOffsetX, y: startY + sectionHeight + sectionHeight / 2 }
-      const p5 = { x: centerX - controlOffsetX, y: startY + sectionHeight + sectionHeight / 2 }
-      const p6 = { x: centerX, y: endY }
+      for (let i = 0; i < numSegments; i++) {
+        const startY = i * segmentHeight
+        const endY = (i + 1) * segmentHeight
+        const sectionHeight = endY - startY
 
-      // 拼接两段贝塞尔曲线
-      return `M ${p0.x} ${p0.y}
-              C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}
-              C ${p4.x} ${p4.y}, ${p5.x} ${p5.y}, ${p6.x} ${p6.y}`
+        if (i === 0) {
+          // 第一段，用 M 开始
+          const p0 = { x: centerX, y: startY }
+          const p1 = { x: centerX + controlOffsetX, y: startY + sectionHeight / 2 }
+          const p2 = { x: centerX - controlOffsetX, y: startY + sectionHeight / 2 }
+          const p3 = { x: centerX, y: endY }
+
+          path = `M ${p0.x} ${p0.y} C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`
+        } else {
+          // 后续段，用 C 连接（方向交替）
+          const isEven = i % 2 === 0
+          const offset1 = isEven ? controlOffsetX : -controlOffsetX
+          const offset2 = isEven ? -controlOffsetX : controlOffsetX
+
+          const p1 = { x: centerX + offset1, y: startY + sectionHeight / 2 }
+          const p2 = { x: centerX + offset2, y: startY + sectionHeight / 2 }
+          const p3 = { x: centerX, y: endY }
+
+          path += ` C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`
+        }
+      }
+
+      return path
     }
   },
   mounted() {
@@ -111,32 +132,16 @@ export default {
     window.removeEventListener('resize', this.updatePlanetPositions)
   },
   methods: {
-    handleScroll(event) {
-      event.preventDefault()
-      const delta = event.deltaY
-      const maxScroll = 200
-      const minScroll = -1000
-      
-      // 限制滚动速度，让球按路径平滑移动
-      const scrollSpeed = Math.min(Math.abs(delta), 50) * Math.sign(delta)
-      this.scrollOffset -= scrollSpeed * 0.3
-      this.scrollOffset = Math.max(minScroll, Math.min(maxScroll, this.scrollOffset))
-    },
-    
     updatePlanetPositions() {
-      const centerX = window.innerWidth / 2
       this.svgWidth = window.innerWidth
 
-      // 固定间距，每个球之间保持相同距离（曲线总长度的20%）
-      const fixedSpacing = 0.1
-
+      // 球均匀分布在整个曲线上
       this.planets.forEach((planet, index) => {
-        const progress = index * fixedSpacing
-        const clampedProgress = Math.min(progress, 1)
-        const position = this.getPointOnCurve(clampedProgress)
+        const progress = index / (this.planets.length - 1) // 从0到1均匀分布
+        const position = this.getPointOnCurve(progress)
 
         planet.position = {
-          x: centerX + position.x,
+          x: position.x,
           y: position.y
         }
       })
@@ -149,37 +154,20 @@ export default {
       path.setAttribute('d', this.curvePath)
       svg.appendChild(path)
       document.body.appendChild(svg)
-      
+
       // 获取路径总长度并计算指定比例处的点
       const totalLength = path.getTotalLength()
       const point = path.getPointAtLength(t * totalLength)
-      
+
       // 清理临时元素
       document.body.removeChild(svg)
-      
-      // 返回相对于中心的坐标
-      const centerX = this.svgWidth / 2
+
       return {
-        x: point.x - centerX,
+        x: point.x,
         y: point.y
       }
     },
 
-    getScrollAdjustedPosition(originalPosition, index) {
-      // 固定间距，与updatePlanetPositions保持一致
-      const fixedSpacing = 0.1
-      const baseProgress = index * fixedSpacing
-      const progress = baseProgress + (this.scrollOffset / 1000)
-      const clampedProgress = Math.max(0, Math.min(1, progress))
-      const curvePosition = this.getPointOnCurve(clampedProgress)
-      const centerX = window.innerWidth / 2
-
-      return {
-        x: centerX + curvePosition.x,
-        y: curvePosition.y - this.scrollOffset
-      }
-    },
-    
     handlePlanetClick(planet) {
       if (planet.type === 'locked') {
         this.$root.showModal('请先完成全部必修课程，才能解锁考试哦')
@@ -196,23 +184,23 @@ export default {
   position: relative;
   width: 100%;
   height: 100vh;
+  overflow-y: auto;
   z-index: 10;
 }
 
 .curve-path {
-  position: fixed;
+  position: absolute;
   top: 0;
-  /* left: 50%;
-  transform: translateX(-50%); */
+  left: 0;
   z-index: 5;
   filter: url(#glow);
 }
 
 .planets-container {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
-  transition: transform 0.3s ease-out;
   z-index: 15;
 }
 
