@@ -126,13 +126,15 @@ export default {
     updatePlanetPositions() {
       const centerX = window.innerWidth / 2
       this.svgWidth = window.innerWidth
-      
+
+      // 固定间距，每个球之间保持相同距离（曲线总长度的20%）
+      const fixedSpacing = 0.1
+
       this.planets.forEach((planet, index) => {
-        // 调整进度计算，让球分布更分散，增加纵向间距
-        const progress = (index * 1.5) / (this.planets.length - 1)
+        const progress = index * fixedSpacing
         const clampedProgress = Math.min(progress, 1)
         const position = this.getPointOnCurve(clampedProgress)
-        
+
         planet.position = {
           x: centerX + position.x,
           y: position.y
@@ -164,12 +166,14 @@ export default {
     },
 
     getScrollAdjustedPosition(originalPosition, index) {
-      const baseProgress = (index * 1.5) / (this.planets.length - 1)
+      // 固定间距，与updatePlanetPositions保持一致
+      const fixedSpacing = 0.1
+      const baseProgress = index * fixedSpacing
       const progress = baseProgress + (this.scrollOffset / 1000)
       const clampedProgress = Math.max(0, Math.min(1, progress))
       const curvePosition = this.getPointOnCurve(clampedProgress)
       const centerX = window.innerWidth / 2
-      
+
       return {
         x: centerX + curvePosition.x,
         y: curvePosition.y - this.scrollOffset
