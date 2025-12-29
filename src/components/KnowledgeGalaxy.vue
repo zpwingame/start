@@ -74,29 +74,37 @@ export default {
   },
   computed: {
     svgHeight() {
-      // 根据球的数量计算SVG高度：球数量 / 5 * 100vh
+      // 根据球的数量计算SVG高度：球数量 / 5 * 100vh + 上下各200px
       const ballsPerViewport = 5
       const viewportHeight = window.innerHeight
-      return Math.ceil(this.planets.length / ballsPerViewport) * viewportHeight
+      const contentHeight = Math.ceil(this.planets.length / ballsPerViewport) * viewportHeight
+      return contentHeight + 400 // 上下各留200px
     },
     curvePath() {
       const width = this.svgWidth
       const height = this.svgHeight
       const centerX = width / 2
+      const padding = 200 // 上下各留200px
 
-      // 根据高度计算需要多少段S曲线
+      // 曲线实际高度
+      const curveHeight = height - padding * 2
+      const curveStartY = padding
+      const curveEndY = height - padding
+
+      // 根据曲线高度计算需要多少段S曲线（一屏2段，多拐一个弯）
       const viewportHeight = window.innerHeight
-      const numSegments = Math.ceil(height / viewportHeight)
+      const segmentsPerViewport = 2 // 一个屏幕2段S曲线
+      const numSegments = Math.ceil(curveHeight / viewportHeight) * segmentsPerViewport
 
       // S曲线参数
-      const segmentHeight = height / numSegments
+      const segmentHeight = curveHeight / numSegments
       const controlOffsetX = 330
 
       let path = ''
 
       for (let i = 0; i < numSegments; i++) {
-        const startY = i * segmentHeight
-        const endY = (i + 1) * segmentHeight
+        const startY = curveStartY + i * segmentHeight
+        const endY = curveStartY + (i + 1) * segmentHeight
         const sectionHeight = endY - startY
 
         if (i === 0) {
