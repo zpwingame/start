@@ -84,12 +84,11 @@ export default {
       const width = this.svgWidth
       const height = this.svgHeight
       const centerX = width / 2
-      const padding = 200 // 上下各留200px
 
-      // 曲线实际高度
-      const curveHeight = height - padding * 2
-      const curveStartY = padding
-      const curveEndY = height - padding
+      // 曲线从头到尾贯穿整个SVG
+      const curveHeight = height
+      const curveStartY = 0
+      const curveEndY = height
 
       // 根据曲线高度计算需要多少段S曲线（一屏2段，多拐一个弯）
       const viewportHeight = window.innerHeight
@@ -139,9 +138,19 @@ export default {
     updatePlanetPositions() {
       this.svgWidth = window.innerWidth
 
-      // 球均匀分布在整个曲线上
+      const padding = 200 // 上下各留200px空间
+      const totalHeight = this.svgHeight
+      const curveStartY = padding
+      const curveEndY = totalHeight - padding
+
+      // 球均匀分布在曲线的中间部分（跳过上下200px）
       this.planets.forEach((planet, index) => {
-        const progress = index / (this.planets.length - 1) // 从0到1均匀分布
+        // 计算球在曲线上的进度（只在中间部分分布）
+        const ballProgress = index / (this.planets.length - 1) // 0到1
+        const targetY = curveStartY + ballProgress * (curveEndY - curveStartY)
+
+        // 将Y坐标转换为整条曲线的进度（0到1）
+        const progress = targetY / totalHeight
         const position = this.getPointOnCurve(progress)
 
         planet.position = {
